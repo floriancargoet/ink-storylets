@@ -15,16 +15,7 @@ VAR enable_exclusivity = false
     ++ [Back]
 + [3 random storylets]
     -- (random_3)
-    multicat: {multicat.content}
-    magic_2: {magic_2.content}
-    magic_5: {magic_5.content}
-    magic_7: {magic_7.content}
-    dog_1: {dog_1.content}
-    dog_2: {dog_2.content}
-    dog_3: {dog_3.content}
-    dog_4: {dog_4.content}
     <- storylets_thread("max=3&random", -> hub)
-    // ~ stop_counting_selection()
     ++ [Again] -> random_3
     ++ [Back]
 + [3 storylets of the non-existing "cat" category]
