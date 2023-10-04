@@ -275,6 +275,6 @@ Patches.add(
   options,
   credits
 );
-var patch = { options, credits };
+var index = { options, credits };
 
-export { patch as default };
+export { index as default };
