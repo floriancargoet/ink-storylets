@@ -1,0 +1,19 @@
+{
+  "name": "storylets2",
+  "version": "1.0.0",
+  "description": "A Calico patch to replace the default storylets patch.",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "author": " Florian Cargoët",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "0.19.4",
+    "inkjs": "2.2.2",
+    "rollup": "3.29.4",
+    "rollup-plugin-copy": "3.5.0",
+    "rollup-plugin-esbuild": "6.0.2",
+    "typescript": "5.2.2"
+  }
+}
