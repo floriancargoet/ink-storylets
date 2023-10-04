@@ -1,5 +1,5 @@
 {
-  "name": "storylets2",
+  "name": "calico-storylets",
   "version": "1.0.0",
   "description": "A Calico patch to replace the default storylets patch.",
   "scripts": {
