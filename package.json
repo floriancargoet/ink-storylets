@@ -1,9 +1,11 @@
 {
   "name": "calico-storylets",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "A Calico patch to replace the default storylets patch.",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "version": "npm run build && git add -A .",
+    "postversion": "git push && git push --tags"
   },
   "author": " Florian Cargoët",
   "license": "MIT",
