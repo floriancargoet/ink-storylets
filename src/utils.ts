@@ -1,7 +1,14 @@
-import { Container } from "inkjs/engine/Container";
-import { ControlCommand } from "inkjs/engine/ControlCommand";
-import { Story } from "inkjs/engine/Story";
-import { Value } from "inkjs/engine/Value";
+import type { Container } from "inkjs/engine/Container";
+import type { ControlCommand } from "inkjs/engine/ControlCommand";
+import type { Story } from "inkjs/engine/Story";
+import type { Value } from "inkjs/engine/Value";
+
+// Can't import enum from dts with rollup :-(
+enum PushPopType {
+  Tunnel = 0,
+  Function = 1,
+  FunctionEvaluationFromGame = 2,
+}
 
 export function take<T>(n: number, list: Iterable<T>): Array<T> {
   const taken = [];
@@ -79,6 +86,7 @@ interface Stringifiable {
   toString: () => string;
 }
 
+// Modified version of calico's evaluateContainer
 export function evaluateContainer<T>(
   story: Story,
   container: Container
@@ -87,6 +95,7 @@ export function evaluateContainer<T>(
 
   // Go to a dedicated flow so we don't break threads in progress in the current flow.
   story.SwitchFlow("storylets evaluator");
+
   // Save state to restore after our hack
   const content = [...container.content];
   // @ts-expect-error private
@@ -111,13 +120,55 @@ export function evaluateContainer<T>(
   }
 
   // then we evaluate it, and return that value from the stack
-  const result = story.EvaluateExpression(container) as Value<Stringifiable>;
+  const result = EvaluateExpression.call(
+    story,
+    container
+  ) as Value<Stringifiable>;
 
   // Restore the state to what it was before the hack
   // @ts-expect-error private
   (story.state._currentFlow as Flow).outputStream = outputStream;
   container._content = content;
   story.SwitchToDefaultFlow();
+  story.RemoveFlow("storylets evaluator");
 
   return (result?.value as T) ?? null;
+}
+
+// Modified version of ink's EvaluateExpression with a fake _temporaryEvaluationContainer
+// Using a _temporaryEvaluationContainer breaks paths and we need them in expression such as TURNS_SINCE(-> knot)
+// so we use the normal _mainContentContainer as temporary container so that the root is correct but ink still knows we are in a temp context.
+// We also replace GoToStart with "go to start of container"
+function EvaluateExpression(this: Story, exprContainer: Container) {
+  let startCallStackHeight = this.state.callStack.elements.length;
+
+  this.state.callStack.Push(PushPopType.Tunnel);
+
+  // @ts-ignore
+  this._temporaryEvaluationContainer = this._mainContentContainer;
+  // We don't go to the start of the story, we only want to go to the start of the container
+  // this.state.GoToStart();
+  // Choose path without counting visits or turns
+  this.state.SetChosenPath(exprContainer.path, false);
+
+  let evalStackHeight = this.state.evaluationStack.length;
+
+  this.Continue();
+
+  // @ts-ignore
+  this._temporaryEvaluationContainer = null;
+
+  // Should have fallen off the end of the Container, which should
+  // have auto-popped, but just in case we didn't for some reason,
+  // manually pop to restore the state (including currentPath).
+  if (this.state.callStack.elements.length > startCallStackHeight) {
+    this.state.PopCallStack();
+  }
+
+  let endStackHeight = this.state.evaluationStack.length;
+  if (endStackHeight > evalStackHeight) {
+    return this.state.PopEvaluationStack();
+  } else {
+    return null;
+  }
 }

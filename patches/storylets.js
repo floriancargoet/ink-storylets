@@ -68,11 +68,33 @@ function evaluateContainer(story, container) {
   if (lastIndex >= 0) {
     container.content.splice(lastIndex);
   }
-  const result = story.EvaluateExpression(container);
+  const result = EvaluateExpression.call(
+    story,
+    container
+  );
   story.state._currentFlow.outputStream = outputStream;
   container._content = content;
   story.SwitchToDefaultFlow();
+  story.RemoveFlow("storylets evaluator");
   return result?.value ?? null;
+}
+function EvaluateExpression(exprContainer) {
+  let startCallStackHeight = this.state.callStack.elements.length;
+  this.state.callStack.Push(0 /* Tunnel */);
+  this._temporaryEvaluationContainer = this._mainContentContainer;
+  this.state.SetChosenPath(exprContainer.path, false);
+  let evalStackHeight = this.state.evaluationStack.length;
+  this.Continue();
+  this._temporaryEvaluationContainer = null;
+  if (this.state.callStack.elements.length > startCallStackHeight) {
+    this.state.PopCallStack();
+  }
+  let endStackHeight = this.state.evaluationStack.length;
+  if (endStackHeight > evalStackHeight) {
+    return this.state.PopEvaluationStack();
+  } else {
+    return null;
+  }
 }
 
 class Storylet {
