@@ -128,3 +128,26 @@ Voici un exemple de filtre :
 ```
 
 Ce filtre sélectionnera les storylets qui ont un stitch `=magic` qui vaut entre 3 et 8. Pour l'utiliser : `filter=filter_magic_3_to_8`.
+
+## Debug JavaScript
+
+Vous pouvez vérifiez que vos storylets se comportent comme prévu en utilisant le `storyletsDebugger` depuis la console JavaScript de votre navigateur.
+
+```
+// Pour récupérer des objets simples avec name/categories/open/exclusivity/urgency/frequency
+// Les objets simples sont une copie de l'état à l'instant T
+storyletsDebugger.get("nom_de_la_storylet")
+storyletsDebugger.all() // Toutes, même les fermées
+storyletsDebugger.select("category=quest&max=3&random")
+
+// Pour récupérer les instances "Storylet", il faut passer true en plus
+// Les instances sont dynamiques (si tu fais avancer l'histoire et que tu regardes la même instance, elle sera à jour)
+storyletsDebugger.get("nom_de_la_storylet", true)
+storyletsDebugger.all(true)
+storyletsDebugger.select("category=quest&max=3&random", true)
+
+ma_storylet = storyletsDebugger.get("nom_de_la_storylet", true)
+ma_storylet.open // et autres propriétés standards des storylets
+ma_storylet.get("magic") // on peut aussi accéder à la valeur des stitches supplémentaires
+ma_storylet.get("magic", 0) // on peut préciser une valeur par défaut à retourner si le stitch n'existe pas ou qu'il ne renvoie pas de valeur
+```
