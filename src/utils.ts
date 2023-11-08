@@ -2,13 +2,8 @@ import type { Container } from "inkjs/engine/Container";
 import type { ControlCommand } from "inkjs/engine/ControlCommand";
 import type { Story } from "inkjs/engine/Story";
 import type { Value } from "inkjs/engine/Value";
-
-// Can't import enum from dts with rollup :-(
-enum PushPopType {
-  Tunnel = 0,
-  Function = 1,
-  FunctionEvaluationFromGame = 2,
-}
+import type { Flow } from "inkjs/engine/Flow";
+import type { InkObject } from "inkjs/engine/Object";
 
 export function take<T>(n: number, list: Iterable<T>): Array<T> {
   const taken = [];
@@ -86,6 +81,16 @@ interface Stringifiable {
   toString: () => string;
 }
 
+export const EVAL_FLOW = "storylets evaluator";
+export function createEvaluatorFlow(story: Story) {
+  // Go to a dedicated flow so we don't break threads in progress in the main flow.
+  story.SwitchFlow(EVAL_FLOW);
+}
+export function destroyEvaluatorFlow(story: Story) {
+  story.SwitchToDefaultFlow();
+  story.RemoveFlow(EVAL_FLOW);
+}
+
 // Modified version of calico's evaluateContainer
 export function evaluateContainer<T>(
   story: Story,
@@ -93,56 +98,62 @@ export function evaluateContainer<T>(
 ): T | null {
   if (!container || !story) return null;
 
-  // Go to a dedicated flow so we don't break threads in progress in the current flow.
-  story.SwitchFlow("storylets evaluator");
+  // If we are already in the storylets evaluator flow, it means the caller manages the flow.
+  const flowManagedByCaller = story.currentFlowName === EVAL_FLOW;
 
-  // Save state to restore after our hack
-  const content = [...container.content];
-  // @ts-expect-error private
-  const outputStream = [...(story.state._currentFlow as Flow).outputStream];
+  if (!flowManagedByCaller) {
+    createEvaluatorFlow(story);
+  }
 
-  // check if the container contains an expression,
-  // and if and where we should crop it
-  let lastIndex = -1;
+  // Save state & container to restore after our hack.
+  const savedContent = [...container.content];
+  const savedOutputStream = [
+    // @ts-expect-error private
+    ...(story.state._currentFlow as Flow).outputStream,
+  ];
+
+  // We need to locate the last expression of the container so we iterate in reverse.
+  // and look for an EvalOutput instruction.
   for (let i = container.content.length - 1; i >= 0; i--) {
-    // commandType 1 (EvalOutput) will remove the value we want
-    // from the evaluationStack, so we trim the array to stop that happening
-    if ((container.content[i] as ControlCommand).commandType === 1) {
-      lastIndex = i;
+    if (isEvalOutput(container.content[i])) {
+      // An EvalOutput instruction would pop from the stack the value that we want.
+      // We truncate the instructions so that the value stays on the stack.
+      container.content.splice(i);
       break;
     }
   }
 
-  if (lastIndex >= 0) {
-    // crop the expression now so the result doesn't get removed
-    // from the stack in the next step
-    container.content.splice(lastIndex);
-  }
-
-  // then we evaluate it, and return that value from the stack
+  // Now the can evaluate this truncated container and return the value on the stack
   const result = EvaluateExpression.call(
     story,
     container
   ) as Value<Stringifiable>;
 
-  // Restore the state to what it was before the hack
+  // Restore the state & container to what it was before the hack
   // @ts-expect-error private
-  (story.state._currentFlow as Flow).outputStream = outputStream;
-  container._content = content;
-  story.SwitchToDefaultFlow();
-  story.RemoveFlow("storylets evaluator");
+  (story.state._currentFlow as Flow).outputStream = savedOutputStream;
+  container._content = savedContent;
+
+  // Restore the flow if we are responsible for it.
+  if (!flowManagedByCaller) {
+    destroyEvaluatorFlow(story);
+  }
 
   return (result?.value as T) ?? null;
 }
 
-// Modified version of ink's EvaluateExpression with a fake _temporaryEvaluationContainer
+function isEvalOutput(obj: InkObject) {
+  return (obj as ControlCommand).commandType === 1 /* CommandType.EvalOutput */;
+}
+
+// Modified version of ink's EvaluateExpression with a fake _temporaryEvaluationContainer.
 // Using a _temporaryEvaluationContainer breaks paths and we need them in expression such as TURNS_SINCE(-> knot)
 // so we use the normal _mainContentContainer as temporary container so that the root is correct but ink still knows we are in a temp context.
-// We also replace GoToStart with "go to start of container"
+// We also replace GoToStart with "go to start of container".
 function EvaluateExpression(this: Story, exprContainer: Container) {
-  let startCallStackHeight = this.state.callStack.elements.length;
+  const startCallStackHeight = this.state.callStack.elements.length;
 
-  this.state.callStack.Push(PushPopType.Tunnel);
+  this.state.callStack.Push(0 /* PushPopType.Tunnel */);
 
   // @ts-ignore
   this._temporaryEvaluationContainer = this._mainContentContainer;
@@ -151,7 +162,7 @@ function EvaluateExpression(this: Story, exprContainer: Container) {
   // Choose path without counting visits or turns
   this.state.SetChosenPath(exprContainer.path, false);
 
-  let evalStackHeight = this.state.evaluationStack.length;
+  const evalStackHeight = this.state.evaluationStack.length;
 
   this.Continue();
 
@@ -165,7 +176,7 @@ function EvaluateExpression(this: Story, exprContainer: Container) {
     this.state.PopCallStack();
   }
 
-  let endStackHeight = this.state.evaluationStack.length;
+  const endStackHeight = this.state.evaluationStack.length;
   if (endStackHeight > evalStackHeight) {
     return this.state.PopEvaluationStack();
   } else {

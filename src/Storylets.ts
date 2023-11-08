@@ -4,7 +4,13 @@ import { Path } from "inkjs/engine/Path";
 
 import { Storylet } from "./Storylet";
 import { parseSelectQuery } from "./SelectQuery";
-import { shuffleArray, shuffleWithFrequency, take } from "./utils";
+import {
+  createEvaluatorFlow,
+  destroyEvaluatorFlow,
+  shuffleArray,
+  shuffleWithFrequency,
+  take,
+} from "./utils";
 
 export class Storylets {
   // The ink story
@@ -48,6 +54,9 @@ export class Storylets {
   }
 
   select(selectQuery: string) {
+    // We're going to evaluate of lot of ink containers, so we handle the flow so that only one is created.
+    createEvaluatorFlow(this.story);
+
     const query = parseSelectQuery(selectQuery);
     // Start with open storylets
     let available = this.storylets.filter((s) => s.open);
@@ -109,6 +118,7 @@ export class Storylets {
     }
 
     this.iterable = available.values();
+    destroyEvaluatorFlow(this.story);
   }
 
   // Consume one storylet in the iterable and return its divert (or the null divert)
