@@ -315,9 +315,10 @@ class StoryletsDebugger {
 
 const credits = {
   emoji: "\u{1F9F6}",
-  name: "Storylets2",
+  name: "Storylets",
   author: "Florian Cargo\xEBt",
-  version: "1.1",
+  // @ts-expect-error Injected by rollup
+  version: "0.1.0",
   description: "Storylets",
   licences: {
     self: "2023"

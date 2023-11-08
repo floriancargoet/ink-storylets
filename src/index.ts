@@ -3,9 +3,10 @@ import { StoryletsDebugger } from "./StoryletsDebugger";
 
 const credits = {
   emoji: "🧶",
-  name: "Storylets2",
+  name: "Storylets",
   author: "Florian Cargoët",
-  version: "1.1",
+  // @ts-expect-error Injected by rollup
+  version: __version,
   description: "Storylets",
   licences: {
     self: "2023",

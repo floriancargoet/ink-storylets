@@ -9,8 +9,8 @@
   },
   "author": " Florian Cargoët",
   "license": "MIT",
-  "dependencies": {},
   "devDependencies": {
+    "@rollup/plugin-replace": "5.0.5",
     "esbuild": "0.19.4",
     "inkjs": "2.2.2",
     "rollup": "3.29.4",
