@@ -318,7 +318,7 @@ const credits = {
   name: "Storylets",
   author: "Florian Cargo\xEBt",
   // @ts-expect-error Injected by rollup
-  version: "0.1.0",
+  version: "0.2.0",
   description: "Storylets",
   licences: {
     self: "2023"
