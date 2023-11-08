@@ -52,44 +52,61 @@ function splitTag(tag = "") {
 function splitCategories(str) {
   return str.split(",").map((s) => s.trim()).filter(Boolean);
 }
+const EVAL_FLOW = "storylets evaluator";
+function createEvaluatorFlow(story) {
+  story.SwitchFlow(EVAL_FLOW);
+}
+function destroyEvaluatorFlow(story) {
+  story.SwitchToDefaultFlow();
+  story.RemoveFlow(EVAL_FLOW);
+}
 function evaluateContainer(story, container) {
   if (!container || !story)
     return null;
-  story.SwitchFlow("storylets evaluator");
-  const content = [...container.content];
-  const outputStream = [...story.state._currentFlow.outputStream];
-  let lastIndex = -1;
+  const flowManagedByCaller = story.currentFlowName === EVAL_FLOW;
+  if (!flowManagedByCaller) {
+    createEvaluatorFlow(story);
+  }
+  const savedContent = [...container.content];
+  const savedOutputStream = [
+    // @ts-expect-error private
+    ...story.state._currentFlow.outputStream
+  ];
   for (let i = container.content.length - 1; i >= 0; i--) {
-    if (container.content[i].commandType === 1) {
-      lastIndex = i;
+    if (isEvalOutput(container.content[i])) {
+      container.content.splice(i);
       break;
     }
-  }
-  if (lastIndex >= 0) {
-    container.content.splice(lastIndex);
   }
   const result = EvaluateExpression.call(
     story,
     container
   );
-  story.state._currentFlow.outputStream = outputStream;
-  container._content = content;
-  story.SwitchToDefaultFlow();
-  story.RemoveFlow("storylets evaluator");
+  story.state._currentFlow.outputStream = savedOutputStream;
+  container._content = savedContent;
+  if (!flowManagedByCaller) {
+    destroyEvaluatorFlow(story);
+  }
   return result?.value ?? null;
 }
+function isEvalOutput(obj) {
+  return obj.commandType === 1;
+}
 function EvaluateExpression(exprContainer) {
-  let startCallStackHeight = this.state.callStack.elements.length;
-  this.state.callStack.Push(0 /* Tunnel */);
+  const startCallStackHeight = this.state.callStack.elements.length;
+  this.state.callStack.Push(
+    0
+    /* PushPopType.Tunnel */
+  );
   this._temporaryEvaluationContainer = this._mainContentContainer;
   this.state.SetChosenPath(exprContainer.path, false);
-  let evalStackHeight = this.state.evaluationStack.length;
+  const evalStackHeight = this.state.evaluationStack.length;
   this.Continue();
   this._temporaryEvaluationContainer = null;
   if (this.state.callStack.elements.length > startCallStackHeight) {
     this.state.PopCallStack();
   }
-  let endStackHeight = this.state.evaluationStack.length;
+  const endStackHeight = this.state.evaluationStack.length;
   if (endStackHeight > evalStackHeight) {
     return this.state.PopEvaluationStack();
   } else {
@@ -216,6 +233,7 @@ class Storylets {
     this.nullDivert = nullStitch.path;
   }
   select(selectQuery) {
+    createEvaluatorFlow(this.story);
     const query = parseSelectQuery(selectQuery);
     let available = this.storylets.filter((s) => s.open);
     if (query.category) {
@@ -263,6 +281,7 @@ class Storylets {
       available = take(query.max, randomIterable ?? available);
     }
     this.iterable = available.values();
+    destroyEvaluatorFlow(this.story);
   }
   // Consume one storylet in the iterable and return its divert (or the null divert)
   getNext() {
@@ -318,7 +337,7 @@ const credits = {
   name: "Storylets",
   author: "Florian Cargo\xEBt",
   // @ts-expect-error Injected by rollup
-  version: "0.2.0",
+  version: "0.2.1",
   description: "Storylets",
   licences: {
     self: "2023"
