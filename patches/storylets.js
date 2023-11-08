@@ -118,6 +118,16 @@ class Storylet {
     this.categories = categories;
     this.contentStitch = this.getStitch("content");
   }
+  toJSON() {
+    return {
+      name: this.knot.name,
+      categories: this.categories,
+      open: this.open,
+      exclusivity: this.exclusivity,
+      urgency: this.urgency,
+      frequency: this.frequency
+    };
+  }
   getStitch(name) {
     return this.knot.namedContent.get(name);
   }
@@ -270,6 +280,39 @@ class Storylets {
   }
 }
 
+function instanceOrObject(storylet, asInstance) {
+  if (storylet == null)
+    return void 0;
+  return asInstance ? storylet : storylet.toJSON();
+}
+function instancesOrObjects(list, asInstances) {
+  return asInstances ? list : list.map((s) => s.toJSON());
+}
+class StoryletsDebugger {
+  constructor(storylets) {
+    this.instance = storylets;
+  }
+  get(name, asInstance = false) {
+    return instanceOrObject(
+      this.instance.storylets.find((s) => s.knot.name === name),
+      asInstance
+    );
+  }
+  all(asInstances = false) {
+    return instancesOrObjects(this.instance.storylets, asInstances);
+  }
+  select(selectQuery, asInstances = false) {
+    const s = this.instance;
+    s.select(selectQuery);
+    if (s.iterable) {
+      const result = [...s.iterable];
+      s.iterable = null;
+      return instancesOrObjects(result, asInstances);
+    }
+    return [];
+  }
+}
+
 const credits = {
   emoji: "\u{1F9F6}",
   name: "Storylets2",
@@ -284,6 +327,7 @@ const options = {};
 Patches.add(
   function() {
     const storylets = new Storylets(this.ink);
+    window.storyletsDebugger = new StoryletsDebugger(storylets);
     ExternalFunctions.add(
       "storylets_select",
       (selectQuery) => storylets.select(selectQuery)

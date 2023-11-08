@@ -110,6 +110,7 @@ export class Storylets {
 
     this.iterable = available.values();
   }
+
   // Consume one storylet in the iterable and return its divert (or the null divert)
   getNext() {
     if (!this.iterable) return this.nullDivert;
@@ -117,6 +118,7 @@ export class Storylets {
     if (done) return this.nullDivert;
     return value.divert;
   }
+
   // Expose storylet prop getter to ink.
   getProp<T>(storyletName: string, propName: string, defaultValue: T) {
     const storylet = this.storylets.find((s) => s.knot.name === storyletName);

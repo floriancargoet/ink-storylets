@@ -29,6 +29,17 @@ export class Storylet {
     this.contentStitch = this.getStitch("content");
   }
 
+  toJSON() {
+    return {
+      name: this.knot.name,
+      categories: this.categories,
+      open: this.open,
+      exclusivity: this.exclusivity,
+      urgency: this.urgency,
+      frequency: this.frequency,
+    };
+  }
+
   getStitch(name: string) {
     return this.knot.namedContent.get(name) as Container;
   }

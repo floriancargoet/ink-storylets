@@ -1,4 +1,5 @@
 import { Storylets } from "./Storylets";
+import { StoryletsDebugger } from "./StoryletsDebugger";
 
 const credits = {
   emoji: "🧶",
@@ -16,6 +17,8 @@ const options = {};
 Patches.add(
   function () {
     const storylets = new Storylets(this.ink);
+    // @ts-ignore
+    window.storyletsDebugger = new StoryletsDebugger(storylets);
 
     ExternalFunctions.add("storylets_select", (selectQuery: string) =>
       storylets.select(selectQuery)
