@@ -133,6 +133,10 @@ Ce filtre sélectionnera les storylets qui ont un stitch `=magic` qui vaut entre
 
 Vous pouvez vérifiez que vos storylets se comportent comme prévu en utilisant le `storyletsDebugger` depuis la console JavaScript de votre navigateur.
 
+⚠️ Si votre jeu est dans une iframe (itch / Catmint par exemple), il faudra vous assurer que la console est connectée à la bonne frame.
+
+<img width="555" alt="image" src="https://github.com/floriancargoet/calico-storylets/assets/110431/f191bbcc-5007-4833-bac9-cf73ae6f07f5">
+
 ```
 // Pour récupérer des objets simples avec name/categories/open/exclusivity/urgency/frequency
 // Les objets simples sont une copie de l'état à l'instant T
