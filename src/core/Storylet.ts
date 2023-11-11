@@ -1,5 +1,5 @@
-import { Story } from "inkjs/engine/Story";
-import { Container } from "inkjs/engine/Container";
+import type { Story } from "inkjs/engine/Story";
+import type { Container } from "inkjs/engine/Container";
 
 import { splitTag, splitCategories, evaluateContainer } from "./utils";
 

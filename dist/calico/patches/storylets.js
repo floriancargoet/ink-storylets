@@ -210,10 +210,15 @@ class Storylets {
     // Store the iterable between ink calls
     this.iterable = null;
     this.story = story;
+    this.nullDivert = this.fetchNullDivert();
+    this.storylets = this.fetchStorylets();
+    this.bindExternalFunctions();
+  }
+  fetchStorylets() {
     const knots = Array.from(
-      story.mainContentContainer.namedContent.values()
+      this.story.mainContentContainer.namedContent.values()
     );
-    this.storylets = knots.map((knot) => Storylet.tryCreate(story, knot)).filter((s) => {
+    return knots.map((knot) => Storylet.tryCreate(this.story, knot)).filter((s) => {
       if (s == null)
         return false;
       if (!s.isValid) {
@@ -223,14 +228,26 @@ class Storylets {
       }
       return s.isValid;
     });
-    const storyletsInternal = story.KnotContainerWithName("storylets_internal");
+  }
+  fetchNullDivert() {
+    const storyletsInternal = this.story.KnotContainerWithName("storylets_internal");
     const nullStitch = storyletsInternal?.namedContent.get("null_stitch");
     if (!nullStitch) {
       throw new Error(
-        "Ink story is missing a 'storylet_internal.null_stitch' stitch."
+        "Ink story is missing a 'storylets_internal.null_stitch' stitch."
       );
     }
-    this.nullDivert = nullStitch.path;
+    return nullStitch.path;
+  }
+  bindExternalFunctions() {
+    const bindings = {
+      storylets_select: this.select.bind(this),
+      storylets_get_next: this.getNext.bind(this),
+      storylets_get_prop: this.getProp.bind(this)
+    };
+    for (const [name, fn] of Object.entries(bindings)) {
+      this.story.BindExternalFunction(name, fn);
+    }
   }
   select(selectQuery) {
     createEvaluatorFlow(this.story);
@@ -348,15 +365,7 @@ Patches.add(
   function() {
     const storylets = new Storylets(this.ink);
     window.storyletsDebugger = new StoryletsDebugger(storylets);
-    ExternalFunctions.add(
-      "storylets_select",
-      (selectQuery) => storylets.select(selectQuery)
-    );
-    ExternalFunctions.add("storylets_get_next", () => storylets.getNext());
-    ExternalFunctions.add(
-      "storylets_get_prop",
-      (storyletName, propName, defaultValue) => storylets.getProp(storyletName, propName, defaultValue)
-    );
+    console.log("A storylet debugger is available as 'storyletsDebugger'.");
   },
   options,
   credits

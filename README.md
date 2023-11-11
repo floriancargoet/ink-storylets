@@ -2,13 +2,36 @@ Documentation préliminaire
 
 ## Installation
 
-1. Copier `patches/storylets.ink` et `patches/storylets.js` dans le dossier `patches` de votre jeu Calico. Si vous ne voulez pas écraser le patch existant, vous pouvez renommer les fichiers.
+### Ink seul
+
+1. Copiez `dist/pure-ink/storylets.ink` à côté de votre fichier `mon_jeu.ink` et modifiez le pour inclure les storylets : `INCLUDE ./storylets.ink`
+2. Exportez votre jeu au format web depuis Inky
+3. Copiez `dist/pure-ink/storylets.js` dans le dossier généré par Inky
+4. Modifiez le fichier `index.html` pour y ajouter `<script src="storylets.js"></script>` **juste après** le script `ink.js`
+5. Modifier le début de `main.js` :
+   Juste après
+
+   ```
+     var story = new inkjs.Story(storyContent);
+   ```
+
+   il faut ajouter :
+
+   ```
+     const storylets = new Storylets(story);
+     // la ligne suivante est optionelle, c'est uniquement pour du debug.
+     window.storyletsDebugger = new StoryletsDebugger(storylets);
+   ```
+
+### Avec Calico
+
+1. Copier `dist/calico/patches/storylets.ink` et `dist/calico/patches/storylets.js` dans le dossier `patches` de votre jeu Calico. Si vous ne voulez pas remplacer le patch existant, vous pouvez renommer les fichiers.
 2. Dans votre `story.ink` : `INCLUDE patches/storylets.ink`
 3. Dans votre `project.js` : `import "./patches/storylets.js";`
 
 ## Format storylet
 
-Je reprends à peu près le format de Calico :
+Je reprends à peu près le format du patch `storylets` de Calico :
 
 ```ink
 === nom_storylet

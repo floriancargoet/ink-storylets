@@ -1,6 +1,5 @@
-import { Story } from "inkjs/engine/Story";
-import { Container } from "inkjs/engine/Container";
-import { Path } from "inkjs/engine/Path";
+import type { Story } from "inkjs/engine/Story";
+import type { Container } from "inkjs/engine/Container";
 
 import { Storylet } from "./Storylet";
 import { parseSelectQuery } from "./SelectQuery";
@@ -14,22 +13,29 @@ import {
 
 export class Storylets {
   // The ink story
-  story: Story;
+  story;
+  // Special divert variable, used as "null" for the divert type
+  nullDivert;
+  // The detected storylets
+  storylets;
   // Store the iterable between ink calls
   iterable: IterableIterator<Storylet> | null = null;
-  // Special divert variable, used as "null" for the divert type
-  nullDivert: Path;
-  // The detected storylets
-  storylets: Array<Storylet>;
 
   constructor(story: Story) {
     this.story = story;
+    this.nullDivert = this.fetchNullDivert();
+    this.storylets = this.fetchStorylets();
+    this.bindExternalFunctions();
+  }
+
+  fetchStorylets() {
     // Find all "#storylet" or "#storylet: category" knots
     const knots = Array.from(
-      story.mainContentContainer.namedContent.values()
+      this.story.mainContentContainer.namedContent.values()
     ) as unknown as Array<Container>;
-    this.storylets = knots
-      .map((knot) => Storylet.tryCreate(story, knot))
+    // Wrap them in Storylet instances
+    return knots
+      .map((knot) => Storylet.tryCreate(this.story, knot))
       .filter((s): s is Storylet => {
         if (s == null) return false;
         if (!s.isValid) {
@@ -39,18 +45,33 @@ export class Storylets {
         }
         return s.isValid;
       });
+  }
 
+  fetchNullDivert() {
     // Find special stitch named null_stitch
-    const storyletsInternal = story.KnotContainerWithName("storylets_internal");
+    const storyletsInternal =
+      this.story.KnotContainerWithName("storylets_internal");
     const nullStitch = storyletsInternal?.namedContent.get("null_stitch") as
       | Container
       | undefined;
     if (!nullStitch) {
       throw new Error(
-        "Ink story is missing a 'storylet_internal.null_stitch' stitch."
+        "Ink story is missing a 'storylets_internal.null_stitch' stitch."
       );
     }
-    this.nullDivert = nullStitch.path;
+    // Use its path as a "null divert"
+    return nullStitch.path;
+  }
+
+  bindExternalFunctions() {
+    const bindings = {
+      storylets_select: this.select.bind(this),
+      storylets_get_next: this.getNext.bind(this),
+      storylets_get_prop: this.getProp.bind(this),
+    };
+    for (const [name, fn] of Object.entries(bindings)) {
+      this.story.BindExternalFunction(name, fn);
+    }
   }
 
   select(selectQuery: string) {
@@ -130,7 +151,7 @@ export class Storylets {
   }
 
   // Expose storylet prop getter to ink.
-  getProp<T>(storyletName: string, propName: string, defaultValue: T) {
+  getProp(storyletName: string, propName: string, defaultValue: any): unknown {
     const storylet = this.storylets.find((s) => s.knot.name === storyletName);
     return storylet?.get(propName, defaultValue) ?? defaultValue;
   }

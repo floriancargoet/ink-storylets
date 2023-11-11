@@ -6,7 +6,6 @@ INCLUDE ../patches/storylets.ink
 #CLEAR
 The hub.
 
-VAR enable_exclusivity = false
 + [All open storylets]
     <- storylets_thread("", -> hub)
     ++ [Back]
@@ -24,11 +23,9 @@ VAR enable_exclusivity = false
     ++ [We didn't find anything, let's go back to the hub.]
 + [3 storylets of the "dog" category]
     -> storylets_tunnel("max=3&category=dog") ->
-+ [3 storylets of the "exclusive" category]
-    ~ enable_exclusivity = true
++ (exclusivity_demo) [3 storylets of the "exclusive" category]
     The "exclusive" storylets have an exclusivity value so only the highest value is selected. They are open only in this section of the demo, otherwise they would always be selected.
     -> storylets_tunnel("max=3&category=exclusive") ->
-    ~ enable_exclusivity = false
 + [3 storylets with a custom filter]
     We use a custom filter "3 ≤ magic ≤ 8", defined as an ink function.
     We will only get 2 storylets matching the filter.
@@ -39,6 +36,11 @@ VAR enable_exclusivity = false
     <- storylets_thread("max=1&category=foo", -> hub)
     <- storylets_thread("max=1&category=bar", -> hub)
     ++ [Back]
++ (event_demo) [Random event]
+    This section runs one random storylet which has content before the choices.
+    <- storylets_thread("category=event&max=1&random", -> hub) 
+    ++ {STORYLET_COUNT == 0} [No more events - Continue]
+    ++ {CHOICE_COUNT() == 0} [Continue] // Pause if there were no choices
 -
 -> hub
 
@@ -126,7 +128,7 @@ DEBUG: {storylet_name} {magic}
 == exclusive_0
 #storylet: exclusive
 = open
-{enable_exclusivity}
+{came_from(-> hub.exclusivity_demo)}
 = exclusivity
 {0}
 = content
@@ -136,7 +138,7 @@ DEBUG: {storylet_name} {magic}
 == exclusive_1
 #storylet: exclusive
 = open
-{enable_exclusivity}
+{came_from(-> hub.exclusivity_demo)}
 = urgency
 {5}
 = exclusivity
@@ -150,7 +152,7 @@ DEBUG: {storylet_name} {magic}
 #storylet: exclusive
 VAR exclu = 1 // global!
 = open
-{enable_exclusivity}
+{came_from(-> hub.exclusivity_demo)}
 = urgency
 {2}
 = exclusivity
@@ -163,7 +165,7 @@ VAR exclu = 1 // global!
 == exclusive_3
 #storylet: exclusive
 = open
-{enable_exclusivity && exclusive_1.enable_level_2}
+{came_from(-> hub.exclusivity_demo) && exclusive_1.enable_level_2}
 = urgency
 {2}
 = exclusivity
@@ -177,7 +179,7 @@ VAR exclu = 1 // global!
 == exclusive_4
 #storylet: exclusive
 = open
-{enable_exclusivity}
+{came_from(-> hub.exclusivity_demo)}
 = urgency
 {7}
 = exclusivity
@@ -186,3 +188,27 @@ VAR exclu = 1 // global!
 + [Urgent storylet (urgency=7, exclusive=1)]
 -
 ->->
+
+== event_1
+#storylet: event
+= open
+{came_from(-> hub.event_demo) and not content}
+= content
+You found a piece of solar panel. If it's fixable, it could help with the power fluctuations. 
+Or it could fetch a decent price at the station.
++ [Store it in the workshop]
++ [Put it in the "for sale" crate]
+- 
+->->
+
+== event_2
+#storylet: event
+= open
+{came_from(-> hub.event_demo) and not content}
+= content
+You found a plastic fragment. Probably from the broken visor of a helmet. Poor soul.
+You put the fragment in the recycling bin.
+->->
+
+=== function came_from(-> x)
+~ return TURNS_SINCE(x) == 0

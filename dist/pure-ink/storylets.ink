@@ -2,6 +2,8 @@ EXTERNAL storylets_select(query)
 EXTERNAL storylets_get_next()
 EXTERNAL storylets_get_prop(storylet_name, prop_name, default_value)
 
+VAR STORYLET_COUNT = 0
+
 // fallbacks for inky
 == function storylets_select(query)
 ~ return
@@ -28,6 +30,7 @@ EXTERNAL storylets_get_prop(storylet_name, prop_name, default_value)
     ->->
 
 = thread(query, -> return_to)
+~ STORYLET_COUNT = 0
 ~ storylets_select(query)
 <- thread_recurse(return_to)
 
@@ -38,6 +41,7 @@ EXTERNAL storylets_get_prop(storylet_name, prop_name, default_value)
 ~ temp storylet_text_stitch = storylets_get_next()
 // iterator will return a null divert target (a divert to null_stitch) when empty.
 {  storylet_text_stitch != -> null_stitch:
+    ~ STORYLET_COUNT++
     <- thread_in_tunnel(storylet_text_stitch, return_to)
     <- thread_recurse(return_to) // recurse
 }
