@@ -10,6 +10,7 @@ export default [
     plugins: [
       esbuild(),
       copy({
+        hook: "writeBundle",
         targets: [
           { src: "src/core/storylets.ink", dest: "dist/pure-ink" },
           { src: "src/core/storylets.ink", dest: "demo/pure-ink" },
@@ -37,6 +38,7 @@ export default [
       }),
       esbuild(),
       copy({
+        hook: "writeBundle",
         targets: [
           { src: "src/core/storylets.ink", dest: "dist/calico" },
           { src: "src/core/storylets.ink", dest: "demo/calico" },
