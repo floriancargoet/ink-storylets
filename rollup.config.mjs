@@ -10,11 +10,14 @@ export default [
     plugins: [
       esbuild(),
       copy({
+        // Copy after the output is compiled
         hook: "writeBundle",
         targets: [
           { src: "src/core/storylets.ink", dest: "dist/pure-ink" },
-          { src: "src/core/storylets.ink", dest: "demo/pure-ink" },
-          { src: "dist/pure-ink/storylets.js", dest: "demo/pure-ink" },
+          {
+            src: ["src/core/storylets.ink", "dist/pure-ink/storylets.js"],
+            dest: "demo/pure-ink",
+          },
         ],
       }),
     ],
@@ -38,11 +41,14 @@ export default [
       }),
       esbuild(),
       copy({
+        // Copy after the output is compiled
         hook: "writeBundle",
         targets: [
           { src: "src/core/storylets.ink", dest: "dist/calico" },
-          { src: "src/core/storylets.ink", dest: "demo/calico" },
-          { src: "dist/calico/storylets.js", dest: "demo/calico" },
+          {
+            src: ["src/core/storylets.ink", "dist/calico/storylets.js"],
+            dest: "demo/calico",
+          },
         ],
       }),
     ],
