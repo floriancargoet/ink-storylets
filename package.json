@@ -1,6 +1,6 @@
 {
   "name": "calico-storylets",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A Calico patch to replace the default storylets patch.",
   "scripts": {
     "build": "rollup -c",
