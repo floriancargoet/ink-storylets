@@ -1,4 +1,4 @@
-INCLUDE ../patches/storylets.ink
+INCLUDE ./storylets.ink
 
 -> hub
 

@@ -10,7 +10,11 @@ export default [
     plugins: [
       esbuild(),
       copy({
-        targets: [{ src: "src/core/storylets.ink", dest: "dist/pure-ink" }],
+        targets: [
+          { src: "src/core/storylets.ink", dest: "dist/pure-ink" },
+          { src: "src/core/storylets.ink", dest: "demo/pure-ink" },
+          { src: "dist/pure-ink/storylets.js", dest: "demo/pure-ink" },
+        ],
       }),
     ],
     output: [
@@ -34,13 +38,15 @@ export default [
       esbuild(),
       copy({
         targets: [
-          { src: "src/core/storylets.ink", dest: "dist/calico/patches" },
+          { src: "src/core/storylets.ink", dest: "dist/calico" },
+          { src: "src/core/storylets.ink", dest: "demo/calico" },
+          { src: "dist/calico/storylets.js", dest: "demo/calico" },
         ],
       }),
     ],
     output: [
       {
-        file: `dist/calico/patches/storylets.js`,
+        file: `dist/calico/storylets.js`,
         format: "es",
       },
     ],

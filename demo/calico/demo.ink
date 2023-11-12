@@ -1,4 +1,4 @@
-INCLUDE ../../dist/calico/patches/storylets.ink
+INCLUDE ./storylets.ink
 
 -> hub
 

@@ -25,7 +25,7 @@ Documentation préliminaire
 
 ### Avec Calico
 
-1. Copier `dist/calico/patches/storylets.ink` et `dist/calico/patches/storylets.js` dans le dossier `patches` de votre jeu Calico. Si vous ne voulez pas remplacer le patch existant, vous pouvez renommer les fichiers.
+1. Copier `dist/calico/storylets.ink` et `dist/calico/storylets.js` dans le dossier `patches` de votre jeu Calico. Si vous préférez ne pas remplacer le patch existant, vous pouvez renommer les fichiers ou les mettre ailleurs que dans `patches`.
 2. Dans votre `story.ink` : `INCLUDE patches/storylets.ink`
 3. Dans votre `project.js` : `import "./patches/storylets.js";`
 

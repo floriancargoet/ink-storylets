@@ -1,4 +1,4 @@
-import "../../dist/calico/patches/storylets.js";
+import "./storylets.js";
 
 options.linedelay = 0;
 options.passagedelay = 0;
