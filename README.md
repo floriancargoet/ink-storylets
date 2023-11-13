@@ -12,21 +12,21 @@ Documentation préliminaire
    Juste après
 
    ```
-     var story = new inkjs.Story(storyContent);
+   var story = new inkjs.Story(storyContent);
    ```
 
    il faut ajouter :
 
    ```
-     const storylets = new Storylets(story);
-     // la ligne suivante est optionelle, c'est uniquement pour du debug.
-     window.storyletsDebugger = new StoryletsDebugger(storylets);
+   const storylets = new Storylets(story);
+   // la ligne suivante est optionelle, c'est uniquement pour du debug.
+   window.storyletsDebugger = new StoryletsDebugger(storylets);
    ```
 
 ### Avec Calico
 
 1. Copier `dist/calico/storylets.ink` et `dist/calico/storylets.js` dans le dossier `patches` de votre jeu Calico. Si vous préférez ne pas remplacer le patch existant, vous pouvez renommer les fichiers ou les mettre ailleurs que dans `patches`.
-2. Dans votre `story.ink` : `INCLUDE patches/storylets.ink`
+2. Dans votre `story.ink` : `INCLUDE ./patches/storylets.ink`
 3. Dans votre `project.js` : `import "./patches/storylets.js";`
 
 ## Format storylet
