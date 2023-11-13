@@ -1,7 +1,7 @@
 {
-  "name": "calico-storylets",
+  "name": "ink-storylets",
   "version": "0.2.3",
-  "description": "A Calico patch to replace the default storylets patch.",
+  "description": "An implementation of storylets for ink.",
   "scripts": {
     "build": "rollup -c",
     "version": "npm run build && git add -A .",

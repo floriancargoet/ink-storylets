@@ -10,28 +10,28 @@
     }
     return taken;
   }
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
+  function shuffleArray(list) {
+    for (let i = list.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [list[i], list[j]] = [list[j], list[i]];
     }
   }
-  function shuffleWithFrequency(list) {
+  function shuffleByFrequency(list) {
+    list = [...list];
     function* gen() {
       while (list.length > 0) {
-        const s = pickWithFrequency(list);
-        yield s;
-        list = [...list];
-        list.splice(list.indexOf(s), 1);
+        const item = pickByFrequency(list);
+        list.splice(list.indexOf(item), 1);
+        yield item;
       }
     }
     return gen();
   }
-  function pickWithFrequency(items) {
+  function pickByFrequency(list) {
     const weights = [];
     let sum = 0;
-    for (let i = 0; i < items.length; i++) {
-      sum += items[i].frequency;
+    for (let i = 0; i < list.length; i++) {
+      sum += list[i].frequency;
       weights.push(sum);
     }
     const index = Math.floor(Math.random() * sum);
@@ -44,7 +44,7 @@
         start = mid + 1;
       }
     }
-    return items[start];
+    return list[start];
   }
   function splitTag(tag = "") {
     let [name, value] = tag.split(":", 2);
@@ -292,7 +292,7 @@
         if (query.random === "uniform") {
           shuffleArray(available);
         } else {
-          randomIterable = shuffleWithFrequency(available);
+          randomIterable = shuffleByFrequency(available);
         }
       } else {
         available.sort((a, b) => b.urgency - a.urgency);

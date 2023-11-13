@@ -7,7 +7,7 @@ export class Storylet {
   story: Story;
   knot: Container;
   categories: Array<string>;
-  contentStitch: Container;
+  contentStitch: Container | undefined;
 
   static tryCreate(story: Story, knot: Container) {
     if (!knot.name) return;
@@ -41,7 +41,7 @@ export class Storylet {
   }
 
   getStitch(name: string) {
-    return this.knot.namedContent.get(name) as Container;
+    return this.knot.namedContent.get(name) as Container | undefined;
   }
 
   get<T>(propName: string, defaultValue: T): T {
@@ -71,6 +71,6 @@ export class Storylet {
     return this.contentStitch != null;
   }
   get divert() {
-    return this.contentStitch.path;
+    return this.contentStitch?.path;
   }
 }

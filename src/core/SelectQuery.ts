@@ -4,6 +4,7 @@ type SelectQuery = {
   random?: "uniform" | "frequency";
   max?: number;
 } & Record<string, Array<string>>;
+
 const defaultRandom = "frequency";
 
 export function parseSelectQuery(str: string) {

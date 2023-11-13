@@ -7,7 +7,7 @@ import {
   createEvaluatorFlow,
   destroyEvaluatorFlow,
   shuffleArray,
-  shuffleWithFrequency,
+  shuffleByFrequency,
   take,
 } from "./utils";
 
@@ -126,7 +126,7 @@ export class Storylets {
         shuffleArray(available);
       } else {
         // Use frequency
-        randomIterable = shuffleWithFrequency(available);
+        randomIterable = shuffleByFrequency(available);
       }
     } else {
       // Sort by urgency
@@ -147,7 +147,7 @@ export class Storylets {
     if (!this.iterable) return this.nullDivert;
     const { value, done } = this.iterable.next();
     if (done) return this.nullDivert;
-    return value.divert;
+    return value.divert ?? this.nullDivert;
   }
 
   // Expose storylet prop getter to ink.

@@ -15,10 +15,10 @@ export function take<T>(n: number, list: Iterable<T>): Array<T> {
 }
 
 // Fisher-Yates
-export function shuffleArray<T>(array: Array<T>) {
-  for (let i = array.length - 1; i > 0; i--) {
+export function shuffleArray<T>(list: Array<T>) {
+  for (let i = list.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
+    [list[i], list[j]] = [list[j], list[i]];
   }
 }
 
@@ -26,28 +26,31 @@ type HasFrequency = {
   frequency: number;
 };
 
-export function shuffleWithFrequency<T extends HasFrequency>(list: Array<T>) {
+export function shuffleByFrequency<T extends HasFrequency>(list: Array<T>) {
+  // Work on a copy
+  list = [...list];
   // Use a generator so we don't pick more items than needed
   function* gen() {
     while (list.length > 0) {
-      const s = pickWithFrequency(list);
-      yield s;
-      list = [...list];
-      list.splice(list.indexOf(s), 1);
+      const item = pickByFrequency(list);
+      // Remove it from the list for the next iteration
+      list.splice(list.indexOf(item), 1);
+      yield item;
     }
   }
   return gen();
 }
 
-function pickWithFrequency<T extends HasFrequency>(items: Array<T>) {
-  const weights = [];
+function pickByFrequency<T extends HasFrequency>(list: Array<T>) {
+  const weights = []; // cumulative frequencies
   let sum = 0;
-  for (let i = 0; i < items.length; i++) {
-    sum += items[i].frequency;
+  for (let i = 0; i < list.length; i++) {
+    sum += list[i].frequency;
     weights.push(sum);
   }
+  // Pick a random "virtual" index (as if more frequent items were several times in the array)
   const index = Math.floor(Math.random() * sum);
-  // Binary search
+  // Binary search of the real index
   let start = 0,
     end = weights.length - 1;
   while (start <= end) {
@@ -58,7 +61,7 @@ function pickWithFrequency<T extends HasFrequency>(items: Array<T>) {
       start = mid + 1;
     }
   }
-  return items[start];
+  return list[start];
 }
 
 // "foo : bar, baz " =>["foo", "bar, baz"]
