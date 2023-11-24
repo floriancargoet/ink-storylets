@@ -20,6 +20,7 @@ VAR STORYLET_COUNT = 0
 
 == storylets_thread(query, -> return_to)
 <- storylets_internal.thread(query, return_to)
+-> DONE
 
 == storylets_internal
 = tunnel(query)
@@ -33,6 +34,7 @@ VAR STORYLET_COUNT = 0
 ~ STORYLET_COUNT = 0
 ~ storylets_select(query)
 <- thread_recurse(return_to)
+-> DONE
 
 // exhaust the storylets in the iterator.
 // iteration is done through recursion.
@@ -45,6 +47,7 @@ VAR STORYLET_COUNT = 0
     <- thread_in_tunnel(storylet_text_stitch, return_to)
     <- thread_recurse(return_to) // recurse
 }
+-> DONE
 
 // function from inky's snippets
 = thread_in_tunnel(-> tunnel_to_run, -> return_to)
