@@ -1,11 +1,10 @@
-function take(n, list) {
-  const taken = [];
+function* take(n, list) {
+  let i = 0;
   for (const item of list) {
-    if (n-- === 0)
+    yield item;
+    if (++i === n)
       break;
-    taken.push(item);
   }
-  return taken;
 }
 function shuffleArray(list) {
   for (let i = list.length - 1; i > 0; i--) {
@@ -172,7 +171,7 @@ class Storylet {
     return this.contentStitch != null;
   }
   get divert() {
-    return this.contentStitch.path;
+    return this.contentStitch?.path;
   }
 }
 
@@ -294,10 +293,8 @@ class Storylets {
     } else {
       available.sort((a, b) => b.urgency - a.urgency);
     }
-    if (query.max != null && query.max > 0) {
-      available = take(query.max, randomIterable ?? available);
-    }
-    this.iterable = available.values();
+    const count = query.max != null && query.max > 0 ? query.max : Infinity;
+    this.iterable = take(count, randomIterable ?? available);
     destroyEvaluatorFlow(this.story);
   }
   // Consume one storylet in the iterable and return its divert (or the null divert)
@@ -307,7 +304,7 @@ class Storylets {
     const { value, done } = this.iterable.next();
     if (done)
       return this.nullDivert;
-    return value.divert;
+    return value.divert ?? this.nullDivert;
   }
   // Expose storylet prop getter to ink.
   getProp(storyletName, propName, defaultValue) {

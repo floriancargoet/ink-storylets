@@ -134,11 +134,9 @@ export class Storylets {
     }
 
     // No max or negative or zero means all.
-    if (query.max != null && query.max > 0) {
-      available = take(query.max, randomIterable ?? available);
-    }
+    const count = query.max != null && query.max > 0 ? query.max : Infinity;
 
-    this.iterable = available.values();
+    this.iterable = take(count, randomIterable ?? available);
     destroyEvaluatorFlow(this.story);
   }
 

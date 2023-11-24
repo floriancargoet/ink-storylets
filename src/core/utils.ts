@@ -5,13 +5,12 @@ import type { Value } from "inkjs/engine/Value";
 import type { Flow } from "inkjs/engine/Flow";
 import type { InkObject } from "inkjs/engine/Object";
 
-export function take<T>(n: number, list: Iterable<T>): Array<T> {
-  const taken = [];
+export function* take<T>(n: number, list: Iterable<T>) {
+  let i = 0;
   for (const item of list) {
-    if (n-- === 0) break;
-    taken.push(item);
+    yield item;
+    if (++i === n) break;
   }
-  return taken;
 }
 
 // Fisher-Yates
@@ -25,20 +24,16 @@ export function shuffleArray<T>(list: Array<T>) {
 type HasFrequency = {
   frequency: number;
 };
-
-export function shuffleByFrequency<T extends HasFrequency>(list: Array<T>) {
+// Use a generator so we don't pick more items than needed
+export function* shuffleByFrequency<T extends HasFrequency>(list: Array<T>) {
   // Work on a copy
   list = [...list];
-  // Use a generator so we don't pick more items than needed
-  function* gen() {
-    while (list.length > 0) {
-      const item = pickByFrequency(list);
-      // Remove it from the list for the next iteration
-      list.splice(list.indexOf(item), 1);
-      yield item;
-    }
+  while (list.length > 0) {
+    const item = pickByFrequency(list);
+    // Remove it from the list for the next iteration
+    list.splice(list.indexOf(item), 1);
+    yield item;
   }
-  return gen();
 }
 
 function pickByFrequency<T extends HasFrequency>(list: Array<T>) {

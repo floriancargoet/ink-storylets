@@ -17,6 +17,11 @@ The hub.
     <- storylets_thread("max=3&random", -> hub)
     ++ [Again] -> random_3
     ++ [Back]
++ [All random storylets]
+    -- (random_all)
+    <- storylets_thread("random", -> hub)
+    ++ [Again] -> random_all
+    ++ [Back]
 + [3 storylets of the non-existing "cat" category]
     Since the category doesn't exist, this will return 0 storylet.
     <- storylets_thread("max=3&category=cat", -> hub)
