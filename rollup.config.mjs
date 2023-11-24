@@ -3,54 +3,56 @@ import esbuild from "rollup-plugin-esbuild";
 import replace from "@rollup/plugin-replace";
 import pkg from "./package.json" assert { type: "json" };
 
-export default [
-  // Pure ink
-  {
-    input: "src/pure-ink/index.ts",
-    plugins: [
-      esbuild(),
-      copy({
-        // Copy after the output is compiled
-        hook: "writeBundle",
-        targets: [
-          { src: "src/core/storylets.ink", dest: "dist/pure-ink" },
-          {
-            src: ["src/core/storylets.ink", "dist/pure-ink/storylets.js"],
-            dest: "demo/pure-ink",
-          },
-        ],
-      }),
+function copyInkToDemoDist(name) {
+  return copy({
+    // Copy after the output is compiled
+    hook: "writeBundle",
+    targets: [
+      { src: "src/core/storylets.ink", dest: `dist/${name}` },
+      {
+        src: ["src/core/storylets.ink", `dist/${name}/storylets.js`],
+        dest: `demo/${name}`,
+      },
     ],
+  });
+}
+
+export default [
+  // Pure ink as global
+  {
+    input: "src/entries/ink-global.ts",
+    plugins: [esbuild(), copyInkToDemoDist("ink-global")],
     output: [
       {
-        file: `dist/pure-ink/storylets.js`,
+        file: `dist/ink-global/storylets.js`,
         format: "iife",
+      },
+    ],
+  },
+  // Pure ink as ES module
+  {
+    input: "src/entries/ink-esm.ts",
+    plugins: [esbuild(), copyInkToDemoDist("ink-esm")],
+    output: [
+      {
+        file: `dist/ink-esm/storylets.js`,
+        format: "es",
       },
     ],
   },
   // Calico patch
   {
-    input: "src/calico/index.ts",
+    input: "src/entries/calico.ts",
     plugins: [
       replace({
-        include: "src/calico/index.ts",
+        include: "src/entries/calico.ts",
         preventAssignment: true,
         values: {
           __version: JSON.stringify(pkg.version),
         },
       }),
       esbuild(),
-      copy({
-        // Copy after the output is compiled
-        hook: "writeBundle",
-        targets: [
-          { src: "src/core/storylets.ink", dest: "dist/calico" },
-          {
-            src: ["src/core/storylets.ink", "dist/calico/storylets.js"],
-            dest: "demo/calico",
-          },
-        ],
-      }),
+      copyInkToDemoDist("calico"),
     ],
     output: [
       {

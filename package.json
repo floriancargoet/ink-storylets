@@ -7,6 +7,8 @@
     "version": "npm run build && git add -A .",
     "postversion": "git push && git push --tags"
   },
+  "main": "dist/ink-esm/storylets.js",
+  "types": "dist/ink-esm/storylets.d.ts",
   "author": " Florian Cargoët",
   "license": "MIT",
   "devDependencies": {
@@ -15,6 +17,7 @@
     "inkjs": "2.2.2",
     "rollup": "3.29.4",
     "rollup-plugin-copy": "3.5.0",
+    "rollup-plugin-dts": "6.1.0",
     "rollup-plugin-esbuild": "6.0.2",
     "typescript": "5.2.2"
   }

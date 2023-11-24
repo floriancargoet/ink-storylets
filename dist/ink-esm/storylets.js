@@ -343,27 +343,4 @@ class StoryletsDebugger {
   }
 }
 
-const credits = {
-  emoji: "\u{1F9F6}",
-  name: "Storylets",
-  author: "Florian Cargo\xEBt",
-  // @ts-expect-error Injected by rollup
-  version: "0.2.4",
-  description: "Storylets",
-  licences: {
-    self: "2023"
-  }
-};
-const options = {};
-Patches.add(
-  function() {
-    const storylets = new Storylets(this.ink);
-    window.storyletsDebugger = new StoryletsDebugger(storylets);
-    console.log("A storylet debugger is available as 'storyletsDebugger'.");
-  },
-  options,
-  credits
-);
-var calico = { options, credits };
-
-export { calico as default };
+export { Storylets, StoryletsDebugger };

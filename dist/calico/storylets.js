@@ -364,6 +364,6 @@ Patches.add(
   options,
   credits
 );
-var index = { options, credits };
+var calico = { options, credits };
 
-export { index as default };
+export { calico as default };

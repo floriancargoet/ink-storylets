@@ -2,13 +2,35 @@ Documentation préliminaire
 
 ## Installation
 
-### Ink seul
+### Ink seul (variables globales)
 
-1. Copiez `dist/pure-ink/storylets.ink` à côté de votre fichier `mon_jeu.ink` et modifiez le pour inclure les storylets : `INCLUDE ./storylets.ink`
+1. Copiez `dist/ink-global/storylets.ink` à côté de votre fichier `mon_jeu.ink` et modifiez le pour inclure les storylets : `INCLUDE ./storylets.ink`
 2. Exportez votre jeu au format web depuis Inky
-3. Copiez `dist/pure-ink/storylets.js` dans le dossier généré par Inky
+3. Copiez `dist/ink-global/storylets.js` dans le dossier généré par Inky
 4. Modifiez le fichier `index.html` pour y ajouter `<script src="storylets.js"></script>` **juste après** le script `ink.js`
 5. Modifier le début de `main.js` :
+   Juste après
+
+   ```
+   var story = new inkjs.Story(storyContent);
+   ```
+
+   il faut ajouter :
+
+   ```
+   const storylets = new Storylets(story);
+   // la ligne suivante est optionelle, c'est uniquement pour du debug.
+   window.storyletsDebugger = new StoryletsDebugger(storylets);
+   ```
+
+### Ink seul (module)
+
+1. Copiez `dist/ink-esm/storylets.ink` à côté de votre fichier `mon_jeu.ink` et modifiez le pour inclure les storylets : `INCLUDE ./storylets.ink`
+2. Exportez votre jeu au format web depuis Inky
+3. Copiez `dist/ink-esm/storylets.js` dans le dossier généré par Inky
+4. Modifiez le fichier `index.html` pour y ajouter `type="module"` sur le script `main.js`: `<script type="module" src="main.js"></script>`
+5. Modifier le début de `main.js` :
+   Au début du fichier : `import { Storylets, StoryletsDebugger } from "./storylets.js";`
    Juste après
 
    ```
