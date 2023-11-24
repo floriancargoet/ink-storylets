@@ -12,16 +12,13 @@ function shuffleArray(list) {
     [list[i], list[j]] = [list[j], list[i]];
   }
 }
-function shuffleByFrequency(list) {
+function* shuffleByFrequency(list) {
   list = [...list];
-  function* gen() {
-    while (list.length > 0) {
-      const item = pickByFrequency(list);
-      list.splice(list.indexOf(item), 1);
-      yield item;
-    }
+  while (list.length > 0) {
+    const item = pickByFrequency(list);
+    list.splice(list.indexOf(item), 1);
+    yield item;
   }
-  return gen();
 }
 function pickByFrequency(list) {
   const weights = [];
@@ -351,7 +348,7 @@ const credits = {
   name: "Storylets",
   author: "Florian Cargo\xEBt",
   // @ts-expect-error Injected by rollup
-  version: "0.2.3",
+  version: "0.2.4",
   description: "Storylets",
   licences: {
     self: "2023"
