@@ -1,6 +1,7 @@
 import copy from "rollup-plugin-copy";
 import esbuild from "rollup-plugin-esbuild";
 import replace from "@rollup/plugin-replace";
+import { dts } from "rollup-plugin-dts";
 import pkg from "./package.json" assert { type: "json" };
 
 function copyInkToDemoDist(name) {
@@ -29,13 +30,23 @@ export default [
       },
     ],
   },
-  // Pure ink as ES module
+  // Pure ink as ES module with typings
   {
     input: "src/entries/ink-esm.ts",
     plugins: [esbuild(), copyInkToDemoDist("ink-esm")],
     output: [
       {
         file: `dist/ink-esm/storylets.js`,
+        format: "es",
+      },
+    ],
+  },
+  {
+    input: "src/entries/ink-esm.ts",
+    plugins: [dts()],
+    output: [
+      {
+        file: `dist/ink-esm/storylets.d.ts`,
         format: "es",
       },
     ],
