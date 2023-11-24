@@ -2,15 +2,18 @@
   "name": "ink-storylets",
   "version": "0.3.0",
   "description": "An implementation of storylets for ink.",
+  "author": " Florian Cargoët",
+  "license": "MIT",
+  "files": [
+    "dist/ink-esm/"
+  ],
+  "main": "dist/ink-esm/storylets.js",
+  "types": "dist/ink-esm/storylets.d.ts",
   "scripts": {
     "build": "rollup -c",
     "version": "npm run build && git add -A .",
     "postversion": "git push && git push --tags"
   },
-  "main": "dist/ink-esm/storylets.js",
-  "types": "dist/ink-esm/storylets.d.ts",
-  "author": " Florian Cargoët",
-  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.5",
     "esbuild": "0.19.4",
