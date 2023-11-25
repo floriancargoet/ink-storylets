@@ -5,6 +5,17 @@ import type { Value } from "inkjs/engine/Value";
 import type { Flow } from "inkjs/engine/Flow";
 import type { InkObject } from "inkjs/engine/Object";
 
+// Use ink's random function so that we use the same seed.
+// It's important when the author uses SEED_RANDOM() or for hot reloading.
+// Note: ink's random range is inclusive
+let random = (min: number, max: number): number => {
+  throw new Error("random function not provided");
+};
+
+export function provideRandom(newRandom: typeof random) {
+  random = newRandom;
+}
+
 export function* take<T>(n: number, list: Iterable<T>) {
   let i = 0;
   for (const item of list) {
@@ -16,7 +27,8 @@ export function* take<T>(n: number, list: Iterable<T>) {
 // Fisher-Yates
 export function shuffleArray<T>(list: Array<T>) {
   for (let i = list.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = random(0, i);
+    // const j = Math.floor(Math.random() * (i + 1));
     [list[i], list[j]] = [list[j], list[i]];
   }
 }
@@ -44,7 +56,8 @@ function pickByFrequency<T extends HasFrequency>(list: Array<T>) {
     weights.push(sum);
   }
   // Pick a random "virtual" index (as if more frequent items were several times in the array)
-  const index = Math.floor(Math.random() * sum);
+  const index = random(0, sum - 1);
+  // const index = Math.floor(Math.random() * sum);
   // Binary search of the real index
   let start = 0,
     end = weights.length - 1;

@@ -9,6 +9,7 @@ import {
   shuffleArray,
   shuffleByFrequency,
   take,
+  provideRandom,
 } from "./utils";
 
 export class Storylets {
@@ -22,6 +23,9 @@ export class Storylets {
   iterable: IterableIterator<Storylet> | null = null;
 
   constructor(story: Story) {
+    provideRandom((min, max) => {
+      return story.EvaluateFunction("ink_random", [min, max]);
+    });
     this.story = story;
     this.nullDivert = this.fetchNullDivert();
     this.storylets = this.fetchStorylets();

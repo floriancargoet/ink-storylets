@@ -4,6 +4,11 @@ import replace from "@rollup/plugin-replace";
 import { dts } from "rollup-plugin-dts";
 import pkg from "./package.json" assert { type: "json" };
 
+const basePlugins = [
+  // Typescript
+  esbuild(),
+];
+
 function copyInkToDemoDist(name) {
   return copy({
     // Copy after the output is compiled
@@ -22,7 +27,7 @@ export default [
   // Pure ink as global
   {
     input: "src/entries/ink-global.ts",
-    plugins: [esbuild(), copyInkToDemoDist("ink-global")],
+    plugins: [...basePlugins, copyInkToDemoDist("ink-global")],
     output: [
       {
         file: `dist/ink-global/storylets.js`,
@@ -33,7 +38,7 @@ export default [
   // Pure ink as ES module with typings
   {
     input: "src/entries/ink-esm.ts",
-    plugins: [esbuild(), copyInkToDemoDist("ink-esm")],
+    plugins: [...basePlugins, copyInkToDemoDist("ink-esm")],
     output: [
       {
         file: `dist/ink-esm/storylets.js`,
@@ -55,6 +60,8 @@ export default [
   {
     input: "src/entries/calico.ts",
     plugins: [
+      ...basePlugins,
+      // Inject version
       replace({
         include: "src/entries/calico.ts",
         preventAssignment: true,
@@ -62,7 +69,6 @@ export default [
           __version: JSON.stringify(pkg.version),
         },
       }),
-      esbuild(),
       copyInkToDemoDist("calico"),
     ],
     output: [
