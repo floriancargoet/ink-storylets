@@ -1,6 +1,12 @@
 (function () {
   'use strict';
 
+  let random = (min, max) => {
+    throw new Error("random function not provided");
+  };
+  function provideRandom(newRandom) {
+    random = newRandom;
+  }
   function* take(n, list) {
     let i = 0;
     for (const item of list) {
@@ -11,7 +17,7 @@
   }
   function shuffleArray(list) {
     for (let i = list.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = random(0, i);
       [list[i], list[j]] = [list[j], list[i]];
     }
   }
@@ -30,7 +36,7 @@
       sum += list[i].frequency;
       weights.push(sum);
     }
-    const index = Math.floor(Math.random() * sum);
+    const index = random(0, sum - 1);
     let start = 0, end = weights.length - 1;
     while (start <= end) {
       let mid = Math.floor((start + end) / 2);
@@ -208,6 +214,9 @@
     constructor(story) {
       // Store the iterable between ink calls
       this.iterable = null;
+      provideRandom((min, max) => {
+        return story.EvaluateFunction("ink_random", [min, max]);
+      });
       this.story = story;
       this.nullDivert = this.fetchNullDivert();
       this.storylets = this.fetchStorylets();

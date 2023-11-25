@@ -14,6 +14,10 @@ VAR STORYLET_COUNT = 0
 == function storylets_get_prop(storylet_name, prop_name, default_value)
 ~ return default_value
 
+// We need to expose ink's RANDOM so that the JS side uses the same seed (useful when it's fixed or when hot reloading)
+== function ink_random(min, max)
+~ return RANDOM(min, max)
+
 == storylets_tunnel(query)
 -> storylets_internal.tunnel(query) ->
 ->->
