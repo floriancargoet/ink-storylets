@@ -2,7 +2,7 @@ import copy from "rollup-plugin-copy";
 import esbuild from "rollup-plugin-esbuild";
 import replace from "@rollup/plugin-replace";
 import { dts } from "rollup-plugin-dts";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 const basePlugins = [
   // Typescript

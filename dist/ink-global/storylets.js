@@ -11,8 +11,7 @@
     let i = 0;
     for (const item of list) {
       yield item;
-      if (++i === n)
-        break;
+      if (++i === n) break;
     }
   }
   function shuffleArray(list) {
@@ -66,8 +65,7 @@
     story.RemoveFlow(EVAL_FLOW);
   }
   function evaluateContainer(story, container) {
-    if (!container || !story)
-      return null;
+    if (!container || !story) return null;
     const flowManagedByCaller = story.currentFlowName === EVAL_FLOW;
     if (!flowManagedByCaller) {
       createEvaluatorFlow(story);
@@ -121,11 +119,9 @@
 
   class Storylet {
     static tryCreate(story, knot) {
-      if (!knot.name)
-        return;
+      if (!knot.name) return;
       const tags = story.TagsForContentAtPath(knot.name);
-      if (!tags)
-        return;
+      if (!tags) return;
       for (const tag of tags) {
         let [tagName, categoryNames = "default"] = splitTag(tag);
         if (tagName == "storylet") {
@@ -227,8 +223,7 @@
         this.story.mainContentContainer.namedContent.values()
       );
       return knots.map((knot) => Storylet.tryCreate(this.story, knot)).filter((s) => {
-        if (s == null)
-          return false;
+        if (s == null) return false;
         if (!s.isValid) {
           console.error(
             `Couldn't find a stitch named "content" in storylet "${s.knot.name}".`
@@ -308,11 +303,9 @@
     }
     // Consume one storylet in the iterable and return its divert (or the null divert)
     getNext() {
-      if (!this.iterable)
-        return this.nullDivert;
+      if (!this.iterable) return this.nullDivert;
       const { value, done } = this.iterable.next();
-      if (done)
-        return this.nullDivert;
+      if (done) return this.nullDivert;
       return value.divert ?? this.nullDivert;
     }
     // Expose storylet prop getter to ink.
@@ -323,8 +316,7 @@
   }
 
   function instanceOrObject(storylet, asInstance) {
-    if (storylet == null)
-      return void 0;
+    if (storylet == null) return void 0;
     return asInstance ? storylet : storylet.toJSON();
   }
   function instancesOrObjects(list, asInstances) {
